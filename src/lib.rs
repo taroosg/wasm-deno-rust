@@ -2,6 +2,7 @@ use wasm_bindgen::prelude::*;
 use serde::{Serialize, Deserialize};
 use num_integer::lcm;
 use sha3::{Digest, Sha3_256, Keccak256};
+use rand::Rng;
 
 fn fib_helper(n: i32, acc1: i64, acc2: i64) -> i64 {
   if n < 1 {
@@ -14,14 +15,6 @@ fn fib_helper(n: i32, acc1: i64, acc2: i64) -> i64 {
 #[wasm_bindgen]
 pub fn fib(n: i32) -> i64 {
   fib_helper(n, 0, 1)
-}
-
-#[cfg(test)]
-mod tests {
-  #[test]
-  fn it_works() {
-    assert_eq!(2 + 2, 4);
-  }
 }
 
 #[wasm_bindgen]
@@ -80,4 +73,28 @@ pub fn create_line (p1: &str, p2: &str, desc: &str) -> String {
 pub fn say(s: &str) -> String {
   let r = String::from("hello ");
   return r + s;
+}
+
+fn collatz(n: isize) -> isize {
+  match n {
+    1 => n,
+    n if n % 2 == 0 => collatz(n / 2),
+    _ => collatz(3 * n + 1),
+  }
+}
+
+fn create_rand(min: isize, max: isize) ->isize {
+  let mut rng = rand::thread_rng();
+  rng.gen_range(min..max)
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  #[test]
+  fn it_works() {
+    for _i in 1..10000 {
+      assert_eq!(collatz(create_rand(1,100000000)), 1);
+    }
+  }
 }
